@@ -1,0 +1,24 @@
+<!-- PAGE SUMMARIES -->
+<!-- Performs the same as .Summary 
+	but removes the toc shortcode -->
+	
+<!-- Start with a blank summary variable -->
+{{- $summary := `` -}}
+
+<!-- See if the summary is set in front matter
+	and if so, use that -->
+{{- if .Params.summary -}}
+	{{- $summary = .Params.summary -}}
+{{- else -}}
+	<!-- Otherwise, get any raw content before manual summary demarcation -->
+	{{- $summary = index (split .RawContent `<!--more-->`) 0 -}}
+
+	<!-- Then remove TOC shortcode, 
+		put it through markdown, 
+		remove formatting,
+		and ensure any HTML escapes (for quote marks e.g.) are made regular text -->
+	{{- $summary = replace $summary `{{< toc >}}` `` | markdownify | plainify | safeHTML -}}
+{{- end -}}
+
+<!-- Return the result, truncated per the config file -->
+{{- $summary | truncate .Site.Params.sumLen -}}
